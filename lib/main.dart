@@ -1,20 +1,37 @@
+import 'package:belanja/Class/userPref.dart';
+import 'package:belanja/Customer/customerMain.dart';
+import 'package:belanja/Seller/sellerMain.dart';
+import 'package:belanja/login.dart';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MainApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  checkUser().then((String result) {
+    Widget initialPage;
+    if (result == 'admin') {
+      initialPage = SellerMain();
+    }
+    else if(result == 'customer'){
+      initialPage = CustomerMain();
+    } 
+    else {
+      initialPage = CustomerMain();
+    }
+    runApp(MainApp(initialPage: initialPage));
+  });
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final Widget initialPage;
+
+  const MainApp({super.key, required this.initialPage});
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
+     return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: initialPage,
     );
   }
 }
