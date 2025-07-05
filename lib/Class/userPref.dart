@@ -9,7 +9,7 @@ Future<String> checkUser() async {
 }
 Future<int> getId() async {
   final prefs = await SharedPreferences.getInstance();
-  int user_id = prefs.getInt("id") ?? 0;
+  int user_id = prefs.getInt("user_id") ?? 0;
   return user_id;
 }
 

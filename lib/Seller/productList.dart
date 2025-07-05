@@ -1,4 +1,6 @@
 import 'package:belanja/Customer/productDetail.dart';
+import 'package:belanja/Seller/productAdd.dart';
+import 'package:belanja/Seller/productEdit.dart';
 import 'package:flutter/material.dart';
 
 class ProductList extends StatefulWidget {
@@ -11,16 +13,30 @@ class ProductList extends StatefulWidget {
 class ProductListPage extends State<ProductList> {
   @override
   Widget build(BuildContext context) {
-     return Scaffold(
+    return Scaffold(
       body: Column(
         children: [
           Padding(
             padding: EdgeInsets.all(12),
             child: SearchBar(hintText: "search"),
           ),
-          Expanded(child:productList())
+          Expanded(child: productList()),
         ],
       ),
+       floatingActionButton: FloatingActionButton(
+          onPressed: () {
+           Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductAdd(),
+            ),
+          );
+          },
+          backgroundColor: Colors.blue,
+          child: Icon(
+            Icons.add,
+          ),
+        ),
     );
   }
 }
@@ -48,38 +64,45 @@ Widget productList() {
         child: Card(
           elevation: 2,
           color: Colors.teal.shade100,
+          clipBehavior:
+              Clip.hardEdge, // Ensures the image respects the card's rounded corners
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ✅ Use fixed height image, NOT Expanded
-             Expanded(
+              // The image takes up the available space
+              Expanded(
                 child: Image.network(
                   'https://via.placeholder.com/150',
                   fit: BoxFit.cover,
                 ),
               ),
-              // ✅ Wrap text in Flexible or just leave it normal
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Item Name',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Item Name (takes up available space in the row)
+                    const Flexible(
+                      child: Text(
+                        'Item Name',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    SizedBox(height: 4),
-                    Text(
-                      '\$19.99',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                      ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ProductEdit(),
+                          ),
+                        );
+                      },
+                      child: const Text('Edit'),
                     ),
                   ],
                 ),

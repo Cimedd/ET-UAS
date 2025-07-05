@@ -16,6 +16,10 @@ class ProductAddPage extends State<ProductAdd>{
   final _stockController = TextEditingController();
   final _imageController = TextEditingController();
 
+  void addProducct(){
+    
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

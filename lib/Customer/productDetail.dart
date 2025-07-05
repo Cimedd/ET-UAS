@@ -1,5 +1,7 @@
+import 'package:belanja/Class/product.dart';
 import 'package:belanja/Customer/shopDetail.dart';
 import 'package:flutter/material.dart';
+import 'package:belanja/Class/api.dart' as api;
 
 class ProductDetail extends StatefulWidget {
   final int productId;
@@ -19,6 +21,9 @@ class ProductdetailPage extends State<ProductDetail> {
     "Popular",
     "Flash Sale",
   ];
+
+  Product? item;
+  bool isLoading = false;
 
   final TextEditingController _reviewController = TextEditingController();
   final TextEditingController _ratingController = TextEditingController();
@@ -82,12 +87,33 @@ class ProductdetailPage extends State<ProductDetail> {
     );
   }
 
+  void fetchData() async{
+    final prod = await api.GetProductDetail(widget.productId);
+    setState(() {
+      item = prod;
+      isLoading = false;
+    });
+  }
+  @override
+  void initState() {  
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Detail")),
       body: SingleChildScrollView(
-        child: Padding(
+        child: ItemView(),
+      ),
+    );
+  }
+
+  Widget ItemView(){
+    if(isLoading){
+       return Center(child: CircularProgressIndicator());
+    }
+    else{
+       return Padding(
           padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,13 +121,13 @@ class ProductdetailPage extends State<ProductDetail> {
               SizedBox(
                 width: double.infinity,
                 child: Image.network(
-                  "https://via.placeholder.com/600x300",
+                  item?.image ?? "",
                   fit: BoxFit.cover,
                 ),
               ),
               const SizedBox(height: 12),
               Text(
-                "Product Name",
+                item?.name ?? "",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 6),
@@ -113,7 +139,7 @@ class ProductdetailPage extends State<ProductDetail> {
                   );
                 },
                 child: Text(
-                  "Shop Name",
+                  "Visit Shop",
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.blue,
@@ -122,9 +148,9 @@ class ProductdetailPage extends State<ProductDetail> {
                 ),
               ),
               const SizedBox(height: 12),
-              Text("Price: \$100", style: TextStyle(fontSize: 16)),
+              Text("Price: ${item?.price}}", style: TextStyle(fontSize: 16)),
               const SizedBox(height: 6),
-              Text("Stock: 20", style: TextStyle(fontSize: 16)),
+              Text("Stock: ${item?.stock}", style: TextStyle(fontSize: 16)),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
@@ -136,7 +162,7 @@ class ProductdetailPage extends State<ProductDetail> {
               ),
               const SizedBox(height: 6),
               Text(
-                "Description: This is a great product that you’ll love to use every day.",
+                item?.description ?? "No Description",
                 style: TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
@@ -219,8 +245,7 @@ class ProductdetailPage extends State<ProductDetail> {
               ),
             ],
           ),
-        ),
-      ),
-    );
+        );
+    }
   }
 }
