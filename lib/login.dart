@@ -15,12 +15,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginState extends State<LoginPage> {
-  String _user_id = "";
+  String _user_email = "";
   String _user_password = "";
   String _error_login = "";
 
-  void doLogin(id, password) async {
-    api.Login(id, password).then((String result) {
+  void doLogin(email, password) async {
+    api.Login(email, password).then((String result) {
       if (result == "admin") {
         Navigator.pushAndRemoveUntil(
           context,
@@ -35,7 +35,7 @@ class _LoginState extends State<LoginPage> {
         );
       } else {
         setState(() {
-          _error_login = "Login failed or unknown role";
+          _error_login = "Login failed";
         });
       }
     });
@@ -61,7 +61,7 @@ class _LoginState extends State<LoginPage> {
               padding: EdgeInsets.all(10),
               child: TextField(
                 onChanged: (v) {
-                  _user_id = v;
+                  _user_email = v;
                 },
                 decoration: InputDecoration(
                   border: OutlineInputBorder(),
@@ -114,7 +114,7 @@ class _LoginState extends State<LoginPage> {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    doLogin(_user_id, _user_password);
+                    doLogin(_user_email, _user_password);
                   },
                   child: Text('Login', style: TextStyle(fontSize: 25)),
                 ),

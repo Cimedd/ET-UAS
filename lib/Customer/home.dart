@@ -18,7 +18,15 @@ class HomePage extends State<Home> {
             padding: EdgeInsets.all(12),
             child: SearchBar(hintText: "search"),
           ),
-          Expanded(
+          productList()
+        ],
+      ),
+    );
+  }
+}
+
+Widget productList(){
+  return  Expanded(
             child: GridView.builder(
               padding: EdgeInsets.all(12),
               itemCount: 20,
@@ -30,26 +38,61 @@ class HomePage extends State<Home> {
               ),
               itemBuilder: (context, index) {
                 return InkWell(
-                  onTap: (){
-                    Navigator.push(context, 
-                    MaterialPageRoute(builder: (context) => ProductDetail(productId: index)));
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ProductDetail(productId: index),
+                      ),
+                    );
                   },
                   child: Card(
                     elevation: 2,
                     color: Colors.teal.shade100,
-                    child: Center(
-                      child: Text(
-                        "Item $index",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // Image from network
+                        Expanded(
+                          flex: 3,
+                          child: Image.network(
+                            'https://via.placeholder.com/150', 
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 1,
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Item $index',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '\$19.99', // Replace with price
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 );
               },
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          );
 }

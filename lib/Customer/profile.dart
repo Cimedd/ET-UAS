@@ -1,5 +1,6 @@
+import 'package:belanja/login.dart';
 import 'package:flutter/material.dart';
-
+import 'package:belanja/Class/userPref.dart' as userPref;
 class Profile extends StatefulWidget{
   @override
   State<StatefulWidget> createState() {
@@ -9,6 +10,15 @@ class Profile extends StatefulWidget{
 }
 
 class ProfilePage extends State<Profile>{
+
+  void Logout() async{
+    await userPref.Logout();
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (route) => false, // Remove all previous routes
+    );
+  }
   @override
   Widget build(BuildContext context) {
      return Scaffold(
@@ -37,7 +47,7 @@ class ProfilePage extends State<Profile>{
                   backgroundColor: Colors.teal,
                 ),
                 onPressed: () {
-                  // Handle logout logic here
+                  Logout();
                 },
                 child: Text(
                   "Logout",
