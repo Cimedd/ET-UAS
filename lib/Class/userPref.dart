@@ -17,6 +17,19 @@ Future<void> Logout() async{
   final prefs = await SharedPreferences.getInstance();
   prefs.remove('user_id');
   prefs.remove('email');
-  prefs.remove('name');
+  prefs.remove('user_name');
   prefs.remove('role');  
+}
+
+Future<Map<String, String?>> getUserData() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  final String? email = prefs.getString('email');
+  final String? name = prefs.getString('user_name');
+  final String? role = prefs.getString('role');
+  return {
+    'email': email,
+    'name': name,
+    'role': role,
+  };
 }

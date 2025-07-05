@@ -7,17 +7,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 //Login
 Future<String> Login(email, password) async {
     final response = await http.post(
-        Uri.parse("https://ubaya.xyz/flutter/160422007/login.php"),
-        body: {'email': email, 'user_password': password});
+        Uri.parse("https://ubaya.xyz/flutter/160422007/uas/login.php"),
+        body: {'email': email, 'password': password});
     if (response.statusCode == 200) {
       Map json = jsonDecode(response.body);
       if (json['result'] == 'success') {
         final prefs = await SharedPreferences.getInstance();
-        prefs.setString("user_id", json['id']);
-        prefs.setString("user_name", json['user_name']);
-        prefs.setString("email", json['email']);
-        prefs.setString("role", json['role']);
-        return json['role'];
+        prefs.setInt("user_id", json['user']['id']);
+        prefs.setString("user_name", json['user']['name']);
+        prefs.setString("email", json['user']['email']);
+        prefs.setString("role", json['user']['role']);
+        return json['user']['role'];
       } else {
         return "Failed to Login";
       }
@@ -28,7 +28,7 @@ Future<String> Login(email, password) async {
 
 Future<String> Register(name , email, password, role) async {
     final response = await http.post(
-        Uri.parse("https://ubaya.xyz/flutter/160422007/login.php"),
+        Uri.parse("https://ubaya.xyz/flutter/160422007/uas/register.php"),
         body: {'name' : name,'email': email, 'password': password, 'role' : role});
     if (response.statusCode == 200) {
       Map json = jsonDecode(response.body);

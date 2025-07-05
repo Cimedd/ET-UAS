@@ -13,44 +13,81 @@ class WishlistPage extends State<Wishlist>{
   @override
   Widget build(BuildContext context) {
   return Scaffold(
-      body: Column(
+       body: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.all(12),
-            child: SearchBar(hintText: "search"),
-          ),
           Expanded(
-            child: GridView.builder(
-              padding: EdgeInsets.all(12),
-              itemCount: 20,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 3 / 2,
-              ),
-              itemBuilder: (context, index) {
-                return InkWell(
-                  onTap: (){
-                    Navigator.push(context, 
-                    MaterialPageRoute(builder: (context) => ProductDetail(productId: index)));
-                  },
-                  child: Card(
-                    elevation: 2,
-                    color: Colors.teal.shade100,
-                    child: Center(
-                      child: Text(
-                        "Item $index",
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
+            child: productList(), // now it's okay to wrap GridView in Expanded
           ),
         ],
       ),
     );
   }
+}
+
+
+Widget productList() {
+  return GridView.builder(
+    padding: const EdgeInsets.all(12),
+    itemCount: 20,
+    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      crossAxisCount: 2,
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
+      childAspectRatio: 0.9,
+    ),
+    itemBuilder: (context, index) {
+      return InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProductDetail(productId: index),
+            ),
+          );
+        },
+        child: Card(
+          elevation: 2,
+          color: Colors.teal.shade100,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ✅ Use fixed height image, NOT Expanded
+             Expanded(
+                child: Image.network(
+                  'https://via.placeholder.com/150',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              // ✅ Wrap text in Flexible or just leave it normal
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Item Name',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '\$19.99',
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

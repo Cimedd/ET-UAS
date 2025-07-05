@@ -1,4 +1,6 @@
+import 'package:belanja/Class/product.dart';
 import 'package:flutter/material.dart';
+import 'package:belanja/Class/api.dart' as api;
 
 class CategoryList extends StatefulWidget{
   @override
@@ -8,12 +10,81 @@ class CategoryList extends StatefulWidget{
 }
 
 class CategoryListPage extends State<CategoryList>{
-  int id = 0;
   
+ void showCategoryDialog(Category? category) {
+  TextEditingController _nameController = TextEditingController(text: category?.name ?? "");
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text(category == null ? "Add Category" : "Edit Category"),
+      content: TextField(
+        controller: _nameController,
+        decoration: InputDecoration(labelText: "Category Name"),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            if (_nameController.text.trim().isNotEmpty) {
+              if(category == null){
+                api.AddCategory();
+              }
+              else{
+                api.EditCategory();
+              }
+              Navigator.pop(context);
+            }
+          },
+          child: Text("Save"),
+        ),
+      ],
+    ),
+  );
+}
+
+  void deleteCategory(Category category) {
+    setState(() {
+      
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text("Cat"),
+      body: ListView.builder(
+        itemCount: 10,
+        itemBuilder: (_, index) {
+          // final category = categories[index];
+          return ListTile(
+            title: Text("category.name"),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit, color: Colors.orange),
+                  onPressed: () => showCategoryDialog(Category(id: 1, name:"asd", sellerId:1)),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => deleteCategory(Category(id: 1, name:"", sellerId:1)),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+           showCategoryDialog(null);
+          },
+          backgroundColor: Colors.blue,
+          child: Icon(
+            Icons.add,
+          ),
+        ),
     );
   }
 }

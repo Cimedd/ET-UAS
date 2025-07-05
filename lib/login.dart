@@ -17,26 +17,31 @@ class LoginPage extends StatefulWidget {
 class _LoginState extends State<LoginPage> {
   String _user_email = "";
   String _user_password = "";
-  String _error_login = "";
 
   void doLogin(email, password) async {
     api.Login(email, password).then((String result) {
-      if (result == "admin") {
+      if (result == "seller") {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Login Success")));
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => SellerMain()),
           (route) => false,
         );
-      } else if (result == "user") {
+      } else if (result == "customer") {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Login Success")));
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => CustomerMain()),
           (route) => false,
         );
       } else {
-        setState(() {
-          _error_login = "Login failed";
-        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Error Login")));
       }
     });
   }

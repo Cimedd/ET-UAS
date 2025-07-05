@@ -79,9 +79,9 @@ class RegisterPage extends State<Register> {
               const SizedBox(height: 16),
               const Text("Choose Role:"),
               ListTile(
-                title: const Text("Buyer"),
+                title: const Text("Customer"),
                 leading: Radio(
-                  value: "buyer",
+                  value: "customer",
                   groupValue: role,
                   onChanged: (value) {
                     setState(() {

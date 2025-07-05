@@ -11,6 +11,8 @@ class Profile extends StatefulWidget{
 
 class ProfilePage extends State<Profile>{
 
+  Map<String,String?> user = {};
+
   void Logout() async{
     await userPref.Logout();
     Navigator.pushAndRemoveUntil(
@@ -18,6 +20,19 @@ class ProfilePage extends State<Profile>{
       MaterialPageRoute(builder: (context) => LoginPage()),
       (route) => false, // Remove all previous routes
     );
+  }
+
+  void setData() async{
+    final userdata = await userPref.getUserData();
+    setState(() {
+      user = userdata;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setData();
   }
   @override
   Widget build(BuildContext context) {
@@ -33,7 +48,12 @@ class ProfilePage extends State<Profile>{
           ),
           SizedBox(height: 16),
           Text(
-            "Edward Leo",
+            user['name'] ?? "Username",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          Text(
+            user['email'] ?? "Email",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 40),
