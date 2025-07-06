@@ -69,7 +69,4 @@ class DatabaseHelper {
      ''');
   }
 
-  //  dbHelper
-  //                   .tambahJumlah(_rsCart?[index]['movie_id'], -1)
-  //                   .then((value) => _bacaData());
 }
