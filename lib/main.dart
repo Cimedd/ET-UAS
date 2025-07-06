@@ -8,7 +8,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   checkUser().then((String result) {
     Widget initialPage;
-    if (result == 'admin') {
+    if (result == 'seller') {
       initialPage = SellerMain();
     }
     else if(result == 'customer'){

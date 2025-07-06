@@ -20,6 +20,20 @@ class DashboardPage extends State<Dashboard>{
     );
   }
 
+  Map<String,String?> user = {};
+
+void setData() async{
+    final userdata = await userPref.getUserData();
+    setState(() {
+      user = userdata;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    setData();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,7 +51,7 @@ class DashboardPage extends State<Dashboard>{
                   Logout();
                 },
                 child: Text(
-                  "Logout",
+                  "Logout ${user['name']}",
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),

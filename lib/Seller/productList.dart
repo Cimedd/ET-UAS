@@ -1,3 +1,4 @@
+import 'package:belanja/Class/product.dart';
 import 'package:belanja/Customer/productDetail.dart';
 import 'package:belanja/Seller/productAdd.dart';
 import 'package:belanja/Seller/productEdit.dart';
@@ -11,6 +12,9 @@ class ProductList extends StatefulWidget {
 }
 
 class ProductListPage extends State<ProductList> {
+  List<Product> products = [];
+  bool isLoading = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,20 +27,16 @@ class ProductListPage extends State<ProductList> {
           Expanded(child: productList()),
         ],
       ),
-       floatingActionButton: FloatingActionButton(
-          onPressed: () {
-           Navigator.push(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => ProductAdd(),
-            ),
+            MaterialPageRoute(builder: (context) => ProductAdd()),
           );
-          },
-          backgroundColor: Colors.blue,
-          child: Icon(
-            Icons.add,
-          ),
-        ),
+        },
+        backgroundColor: Colors.blue,
+        child: Icon(Icons.add),
+      ),
     );
   }
 }
@@ -92,17 +92,18 @@ Widget productList() {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    ElevatedButton(
+                    SizedBox(width: 3,),
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      tooltip: 'Edit Product',
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder:
-                                (context) => ProductEdit(),
+                            builder: (context) => ProductEdit(id: 1,),
                           ),
                         );
                       },
-                      child: const Text('Edit'),
                     ),
                   ],
                 ),

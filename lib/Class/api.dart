@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 
 import 'package:belanja/Class/product.dart';
@@ -8,48 +7,50 @@ import 'package:belanja/Class/userPref.dart' as userPref;
 
 //Login
 Future<String> Login(email, password) async {
-    final response = await http.post(
-        Uri.parse("https://ubaya.xyz/flutter/160422007/uas/login.php"),
-        body: {'email': email, 'password': password});
-    if (response.statusCode == 200) {
-      Map json = jsonDecode(response.body);
-      if (json['result'] == 'success') {
-        final prefs = await SharedPreferences.getInstance();
-        prefs.setInt("user_id", json['user']['id']);
-        prefs.setString("user_name", json['user']['name']);
-        prefs.setString("email", json['user']['email']);
-        prefs.setString("role", json['user']['role']);
-        return json['user']['role'];
-      } else {
-        return "Failed to Login";
-      }
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/login.php"),
+    body: {'email': email, 'password': password},
+  );
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setInt("user_id", json['user']['id']);
+      prefs.setString("user_name", json['user']['name']);
+      prefs.setString("email", json['user']['email']);
+      prefs.setString("role", json['user']['role']);
+      return json['user']['role'];
     } else {
-      throw Exception('Failed to read API');
+      return "Failed to Login";
     }
+  } else {
+    throw Exception('Failed to read API');
   }
+}
 
-Future<String> Register(name , email, password, role) async {
-    final response = await http.post(
-        Uri.parse("https://ubaya.xyz/flutter/160422007/uas/register.php"),
-        body: {'name' : name,'email': email, 'password': password, 'role' : role});
-    if (response.statusCode == 200) {
-      Map json = jsonDecode(response.body);
-      if (json['result'] == 'success') {
-        return "success";
-      } else {
-        return "Failed to Login";
-      }
+Future<String> Register(name, email, password, role) async {
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/register.php"),
+    body: {'name': name, 'email': email, 'password': password, 'role': role},
+  );
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return "success";
     } else {
-      throw Exception('Failed to read API');
+      return "Failed to Login";
     }
+  } else {
+    throw Exception('Failed to read API');
   }
+}
 
 //product
-Future<List<Product>> GetProductList() async{
+Future<List<Product>> GetProductList() async {
   final response = await http.get(
-    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productlist.php")
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productlist.php"),
   );
-  
+
   if (response.statusCode == 200) {
     Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
@@ -63,16 +64,24 @@ Future<List<Product>> GetProductList() async{
   }
 }
 
-Future<String> AddProduct(name, description, stock, image, price) async{
+Future<String> AddProduct(Product prod) async {
+  final id = await userPref.getId();
   final response = await http.post(
-    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productadd.php")
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productadd.php"),
+    body: {
+      'name': prod.name,
+      'desc': prod.description,
+      'stock': prod.stock,
+      'price': prod.price,
+      'image': prod.image,
+      'id': id.toString(),
+    },
   );
-  
+
   if (response.statusCode == 200) {
     Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
-      final List<dynamic> jsonList = json['data'];
-      return "";
+      return "success";
     } else {
       throw Exception('API result not success');
     }
@@ -81,29 +90,80 @@ Future<String> AddProduct(name, description, stock, image, price) async{
   }
 }
 
-void DeleteProduct(){
+Future<String> DeleteProduct(id) async{
+   final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productdelete.php"),
+    body: {'id': id.toString()},
+  );
 
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return "success";
+    } else {
+      return "error";
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
 }
 
-void EditProduct(){
-
-}
-
-void GetProductAdmin(id){
-
-}
-
-Future<Product> GetProductDetail(id) async{
+Future<String> EditProduct(Product prod) async {
   final response = await http.post(
-    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/wishlistget.php"),
-     body: {'id' : id.toString()});
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productedit.php"),
+    body: {
+      'name': prod.name,
+      'desc': prod.description,
+      'stock': prod.stock,
+      'price': prod.price,
+      'image': prod.image,
+      'id': prod.id,
+    },
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return "success";
+    } else {
+      throw Exception('API result not success');
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}
+
+Future<List<Product>> GetProductAdmin() async {
+  final id = await userPref.getId();
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productadminlist.php"),
+    body: {'id': id.toString()},
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      final List<dynamic> jsonList = json['data'];
+      return jsonList.map((e) => Product.fromJson(e)).toList();
+    } else {
+      throw Exception('API result not success');
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}
+
+Future<Product> GetProductDetail(id) async {
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productdetail.php"),
+    body: {'id': id.toString()},
+  );
 
   if (response.statusCode == 200) {
     Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
       return Product.fromJson(json['product']);
-    } 
-    else {
+    } else {
       throw Exception('API result not success');
     }
   } else {
@@ -112,18 +172,18 @@ Future<Product> GetProductDetail(id) async{
 }
 
 //category
-Future<String> AddCategory(name) async{
+Future<String> AddCategory(name) async {
   final id = await userPref.getId();
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/categoryadd.php"),
-     body: {'name' : name, 'seller_id' : id});
+    body: {'name': name, 'id': id.toString()},
+  );
 
   if (response.statusCode == 200) {
     Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
       return "success";
-    } 
-    else {
+    } else {
       return "error";
     }
   } else {
@@ -131,35 +191,17 @@ Future<String> AddCategory(name) async{
   }
 }
 
-Future<String> DeleteCategory(id) async{
+Future<String> DeleteCategory(id) async {
   final response = await http.post(
-  Uri.parse("https://ubaya.xyz/flutter/160422007/uas/categorydelete.php"),
-     body: {'id' : id});
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/categorydelete.php"),
+    body: {'id': id.toString()},
+  );
 
   if (response.statusCode == 200) {
     Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
       return "success";
-    } 
-    else {
-      return "error";
-    }
-  } else {
-    throw Exception('Failed to read API');
-  } 
-}
-
-Future<String> EditCategory(id, name) async{
-  final response = await http.post(
-  Uri.parse("https://ubaya.xyz/flutter/160422007/uas/categoryedit.php"),
-     body: {'name' : name, 'id' : id});
-
-  if (response.statusCode == 200) {
-    Map json = jsonDecode(response.body);
-    if (json['result'] == 'success') {
-      return "success";
-    } 
-    else {
+    } else {
       return "error";
     }
   } else {
@@ -167,39 +209,36 @@ Future<String> EditCategory(id, name) async{
   }
 }
 
-Future<List<Category>> GetCategory() async{
+Future<String> EditCategory(id, name) async {
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/categoryedit.php"),
+    body: {'name': name, 'id': id.toString()},
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return "success";
+    } else {
+      return "error";
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}
+
+Future<List<Category>> GetCategory() async {
   final id = await userPref.getId();
   final response = await http.post(
-  Uri.parse("https://ubaya.xyz/flutter/160422007/uas/categorylist.php"),
-     body: { 'id' : id});
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/categorylist.php"),
+    body: {'id': id.toString()},
+  );
   if (response.statusCode == 200) {
     Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
       final List<dynamic> jsonList = json['data'];
       return jsonList.map((e) => Category.fromJson(e)).toList();
-    } else{
-       throw Exception('API result not success');
-    }
-  } else {
-    throw Exception('Failed to read API');
-  }
-
-}
-
-//wishlist
-Future<List<Product>> GetWishlist() async{
-  final id = await userPref.getId();
-  final response = await http.post(
-    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/wishlistget.php"),
-     body: {'id' : id.toString()});
-
-  if (response.statusCode == 200) {
-    Map json = jsonDecode(response.body);
-    if (json['result'] == 'success') {
-      final List<dynamic> jsonList = json['data'];
-      return jsonList.map((e) => Product.fromJson(e)).toList();
-    } 
-    else {
+    } else {
       throw Exception('API result not success');
     }
   } else {
@@ -207,3 +246,23 @@ Future<List<Product>> GetWishlist() async{
   }
 }
 
+//wishlist
+Future<List<Product>> GetWishlist() async {
+  final id = await userPref.getId();
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/wishlistget.php"),
+    body: {'id': id.toString()},
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      final List<dynamic> jsonList = json['data'];
+      return jsonList.map((e) => Product.fromJson(e)).toList();
+    } else {
+      throw Exception('API result not success');
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}

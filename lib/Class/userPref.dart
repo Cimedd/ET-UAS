@@ -24,6 +24,7 @@ Future<void> Logout() async{
 Future<Map<String, String?>> getUserData() async {
   final prefs = await SharedPreferences.getInstance();
 
+  final int? id = prefs.getInt('user_id');
   final String? email = prefs.getString('email');
   final String? name = prefs.getString('user_name');
   final String? role = prefs.getString('role');
@@ -31,5 +32,6 @@ Future<Map<String, String?>> getUserData() async {
     'email': email,
     'name': name,
     'role': role,
+    'id' : id.toString()
   };
 }

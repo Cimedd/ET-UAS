@@ -11,6 +11,7 @@ class CategoryList extends StatefulWidget {
 
 class CategoryListPage extends State<CategoryList> {
   List<Category> categories = [];
+  bool isLoading = true;
 
   void showCategoryDialog(Category? category) {
     TextEditingController _nameController = TextEditingController(
@@ -31,14 +32,29 @@ class CategoryListPage extends State<CategoryList> {
                 child: Text("Cancel"),
               ),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_nameController.text.trim().isNotEmpty) {
+                    String result;
                     if (category == null) {
-                      api.AddCategory(_nameController);
+                      result = await api.AddCategory(_nameController.text);
                     } else {
-                      api.EditCategory(_nameController, category.id);
+                      result = await api.EditCategory(
+                        category.id,
+                        _nameController.text,
+                      );
                     }
-                    Navigator.pop(context);
+
+                    if (result == "success") {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Saved successfully!")),
+                      );
+                      fetchData();
+                      Navigator.pop(context);
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Failed! Please Try Again")),
+                      );
+                    }
                   }
                 },
                 child: Text("Save"),
@@ -49,14 +65,27 @@ class CategoryListPage extends State<CategoryList> {
   }
 
   void deleteCategory(Category category) {
-    api.DeleteCategory(category.id);
-    setState(() {});
+    final result = api.DeleteCategory(category.id);
+    if (result == "success") {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Deleted successfully!")));
+      fetchData();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    }
   }
 
   void fetchData() async {
+    setState(() {
+      isLoading = true;
+    });
     final data = await api.GetCategory();
     setState(() {
       categories = data;
+      isLoading = false;
     });
   }
 
@@ -69,34 +98,7 @@ class CategoryListPage extends State<CategoryList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (_, index) {
-          // final category = categories[index];
-          return ListTile(
-            title: Text("category.name"),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.orange),
-                  onPressed:
-                      () => showCategoryDialog(
-                        Category(id: 1, name: "asd", sellerId: 1),
-                      ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed:
-                      () => deleteCategory(
-                        Category(id: 1, name: "", sellerId: 1),
-                      ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+      body: CategoryList(),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showCategoryDialog(null);
@@ -105,5 +107,35 @@ class CategoryListPage extends State<CategoryList> {
         child: Icon(Icons.add),
       ),
     );
+  }
+
+  Widget CategoryList() {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (categories.isEmpty) {
+      return Center(child: Text("No categories found, start adding some"));
+    } else {
+      return ListView.builder(
+        itemCount: categories.length,
+        itemBuilder: (_, index) {
+          return ListTile(
+            title: Text(categories[index].name),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: Icon(Icons.edit, color: Colors.orange),
+                  onPressed: () => showCategoryDialog(categories[index]),
+                ),
+                IconButton(
+                  icon: Icon(Icons.delete, color: Colors.red),
+                  onPressed: () => deleteCategory(categories[index]),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
   }
 }

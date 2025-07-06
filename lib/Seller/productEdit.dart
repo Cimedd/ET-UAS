@@ -1,6 +1,11 @@
+import 'package:belanja/Class/product.dart';
 import 'package:flutter/material.dart';
+import 'package:belanja/Class/api.dart' as api;
 
 class ProductEdit extends StatefulWidget {
+  final int id;
+
+  const ProductEdit({super.key, required this.id});
   @override
   State<StatefulWidget> createState() {
     return ProductEditPage();
@@ -8,6 +13,8 @@ class ProductEdit extends StatefulWidget {
 }
 
 class ProductEditPage extends State<ProductEdit> {
+  Product? product;
+
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
@@ -16,7 +23,10 @@ class ProductEditPage extends State<ProductEdit> {
   final _imageController = TextEditingController();
 
   void fetchData() async{
-
+    final data = await api.GetProductDetail(widget.id); 
+    setState(() {
+      product = data;
+    });
   }
 
   @override
