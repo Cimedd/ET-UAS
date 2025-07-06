@@ -71,8 +71,8 @@ Future<String> AddProduct(Product prod) async {
     body: {
       'name': prod.name,
       'desc': prod.description,
-      'stock': prod.stock,
-      'price': prod.price,
+      'stock': prod.stock.toString(),
+      'price': prod.price.toString(),
       'image': prod.image,
       'id': id.toString(),
     },
@@ -114,10 +114,10 @@ Future<String> EditProduct(Product prod) async {
     body: {
       'name': prod.name,
       'desc': prod.description,
-      'stock': prod.stock,
-      'price': prod.price,
+      'stock': prod.stock.toString(),
+      'price': prod.price.toString(),
       'image': prod.image,
-      'id': prod.id,
+      'id': prod.id.toString(),
     },
   );
 
@@ -266,3 +266,22 @@ Future<List<Product>> GetWishlist() async {
     throw Exception('Failed to read API');
   }
 }
+
+//order
+Future<String> addOrder() async{
+  return "";
+}
+
+Future<String> getOrderHistory() async{
+    return "";
+}
+
+Future<String> getOrderDetail() async{
+    return "";
+}
+
+//chat
+Future<String> getChat() async{
+  return "";
+}
+

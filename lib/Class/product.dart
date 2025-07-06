@@ -7,6 +7,7 @@ class Product {
   int stock;
   String image;
   List<Category>? category;
+  //bool is wishlisted;
 
   Product({
     required this.id,
@@ -28,7 +29,7 @@ class Product {
       price: json['price'],
       stock: json['stock'],
       image: json['image'],
-       category: (json['categories'] as List<dynamic>?)
+      category: (json['categories'] as List<dynamic>?)
           ?.map((e) => Category.fromJson(e))
           .toList(),
     );
@@ -42,7 +43,7 @@ class Category{
 
   Category({required this.id, required this.name, required this.sellerId});
   factory Category.fromJson(Map<String, dynamic> json){
-    return Category(id: json['id'], name:json['name'], sellerId:json['seller_id']);
+    return Category(id: json['id'] ?? 0, name:json['name'] ?? "", sellerId:json['seller_id'] ?? 0);
   }
 }
 

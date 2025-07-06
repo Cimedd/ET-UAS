@@ -1,3 +1,4 @@
+import 'package:belanja/Class/api.dart' as api;
 import 'package:belanja/Class/product.dart';
 import 'package:belanja/Customer/productDetail.dart';
 import 'package:belanja/Seller/productAdd.dart';
@@ -14,6 +15,20 @@ class ProductList extends StatefulWidget {
 class ProductListPage extends State<ProductList> {
   List<Product> products = [];
   bool isLoading = true;
+
+  void fetchData() async {
+    List<Product> data = await api.GetProductAdmin();
+    setState(() {
+      products = data;
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,79 +54,84 @@ class ProductListPage extends State<ProductList> {
       ),
     );
   }
-}
 
-Widget productList() {
-  return GridView.builder(
-    padding: const EdgeInsets.all(12),
-    itemCount: 20,
-    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 2,
-      crossAxisSpacing: 10,
-      mainAxisSpacing: 10,
-      childAspectRatio: 0.9,
-    ),
-    itemBuilder: (context, index) {
-      return InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProductDetail(productId: index),
+  Widget productList() {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (products.isEmpty) {
+      return Center(child: Text("Empty Product"));
+    } else {
+      return GridView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: products.length,
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 0.9,
+        ),
+        itemBuilder: (context, index) {
+          return InkWell(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder:
+                      (context) => ProductDetail(productId: products[index].id),
+                ),
+              );
+            },
+            child: Card(
+              elevation: 2,
+              color: Colors.teal.shade100,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Image.network(
+                      products[index].image,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            products[index].name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.edit),
+                          tooltip: 'Edit Product',
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        ProductEdit(id: products[index].id),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
-        child: Card(
-          elevation: 2,
-          color: Colors.teal.shade100,
-          clipBehavior:
-              Clip.hardEdge, // Ensures the image respects the card's rounded corners
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // The image takes up the available space
-              Expanded(
-                child: Image.network(
-                  'https://via.placeholder.com/150',
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Item Name (takes up available space in the row)
-                    const Flexible(
-                      child: Text(
-                        'Item Name',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    SizedBox(width: 3,),
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      tooltip: 'Edit Product',
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProductEdit(id: 1,),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       );
-    },
-  );
+    }
+  }
 }

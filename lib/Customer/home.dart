@@ -53,7 +53,7 @@ class HomePage extends State<Home> {
     } else {
       return GridView.builder(
         padding: const EdgeInsets.all(12),
-        itemCount: 20,
+        itemCount: products.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           crossAxisSpacing: 10,

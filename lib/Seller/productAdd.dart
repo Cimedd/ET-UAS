@@ -1,4 +1,6 @@
+import 'package:belanja/Class/product.dart';
 import 'package:flutter/material.dart';
+import 'package:belanja/Class/api.dart' as api;
 
 class ProductAdd extends StatefulWidget{
   @override
@@ -16,8 +18,19 @@ class ProductAddPage extends State<ProductAdd>{
   final _stockController = TextEditingController();
   final _imageController = TextEditingController();
 
-  void addProducct(){
-    
+  void addProducct(Product prod) async{
+    final result = await api.AddProduct(prod);
+    if(result == "success"){
+       ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Add successful!")));
+      Navigator.pop(context);
+    } 
+    else{
+       ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    } 
   }
 
   @override
@@ -66,12 +79,10 @@ class ProductAddPage extends State<ProductAdd>{
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // Call your API or logic here
-                    print("Product Name: ${_nameController.text}");
-                    print("Description: ${_descController.text}");
-                    print("Price: ${_priceController.text}");
-                    print("Stock: ${_stockController.text}");
-                    print("Image URL: ${_imageController.text}");
+                    Product prod = Product(id: 0, sellerId:0 , name: _nameController.text, 
+                    description: _descController.text, price: int.parse(_priceController.text),
+                     stock:int.parse( _stockController.text), image: _imageController.text, category: []);
+                     addProducct(prod);
                   }
                 },
                 child: Text("Submit"),

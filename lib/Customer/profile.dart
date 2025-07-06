@@ -18,7 +18,7 @@ class ProfilePage extends State<Profile>{
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => LoginPage()),
-      (route) => false, // Remove all previous routes
+      (route) => false, 
     );
   }
 

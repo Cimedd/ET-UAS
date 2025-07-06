@@ -15,7 +15,7 @@ void main() {
       initialPage = CustomerMain();
     } 
     else {
-      initialPage = CustomerMain();
+      initialPage = LoginPage();
     }
     runApp(MainApp(initialPage: initialPage));
   });

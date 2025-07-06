@@ -1,3 +1,4 @@
+import 'package:belanja/Customer/cart.dart';
 import 'package:belanja/Customer/home.dart';
 import 'package:belanja/Customer/orders.dart';
 import 'package:belanja/Customer/profile.dart';
@@ -59,6 +60,16 @@ class Customer extends State<CustomerMain> {
             _currentIndex = index;
           });
         },
+      ),
+        floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => Cart()),
+          );
+        },
+        backgroundColor: Colors.blue,
+        child: Icon(Icons.shopping_cart),
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:belanja/Class/product.dart';
+import 'package:belanja/Seller/sellerMain.dart';
 import 'package:flutter/material.dart';
 import 'package:belanja/Class/api.dart' as api;
+import 'package:http/http.dart';
 
 class ProductEdit extends StatefulWidget {
   final int id;
@@ -14,7 +16,7 @@ class ProductEdit extends StatefulWidget {
 
 class ProductEditPage extends State<ProductEdit> {
   Product? product;
-
+  bool isLoading = true;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
@@ -22,28 +24,71 @@ class ProductEditPage extends State<ProductEdit> {
   final _stockController = TextEditingController();
   final _imageController = TextEditingController();
 
-  void fetchData() async{
-    final data = await api.GetProductDetail(widget.id); 
+  void fetchData() async {
+    final data = await api.GetProductDetail(widget.id);
     setState(() {
+      isLoading = false;
       product = data;
+      _nameController.text = product?.name ?? "";
+      _descController.text = product?.description ?? "";
+      _priceController.text = product?.price.toString() ?? '';
+      _stockController.text = product?.stock.toString() ?? '';
+      _imageController.text = product?.image ?? "";
     });
+  }
+
+  void Save(Product prod) async {
+    final result = await api.EditProduct(prod);
+    if (result == "success") {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Edit successful!")));
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    }
+  }
+
+  void Delete(id) async {
+    final result = await api.DeleteProduct(id);
+    if (result == "success") {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Delete successful!")));
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    } 
   }
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = "Edit";
-    _descController.text = "Edit";
-    _priceController.text = "Edit";
-    _stockController.text = "Edit";
-    _imageController.text = "Edit";
+    fetchData();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Edit Product")),
-      body: Padding(
+      appBar: AppBar(
+        title: Text("Edit Product"),
+        actions: [IconButton(icon: const Icon(Icons.delete, color: Colors.red,), onPressed: () {
+          Delete(product?.id);
+        })],
+      ),
+      body: EditForm(),
+    );
+  }
+
+  Widget EditForm() {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else {
+      return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -96,12 +141,14 @@ class ProductEditPage extends State<ProductEdit> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    // Call your API or logic here
-                    print("Product Name: ${_nameController.text}");
-                    print("Description: ${_descController.text}");
-                    print("Price: ${_priceController.text}");
-                    print("Stock: ${_stockController.text}");
-                    print("Image URL: ${_imageController.text}");
+                    product?.name = _nameController.text;
+                    product?.image = _imageController.text;
+                    product?.stock = int.parse(_stockController.text);
+                    ;
+                    product?.price = int.parse(_priceController.text);
+                    ;
+                    product?.description = _descController.text;
+                    Save(product!);
                   }
                 },
                 child: Text("Submit"),
@@ -109,7 +156,7 @@ class ProductEditPage extends State<ProductEdit> {
             ],
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
