@@ -20,6 +20,7 @@ class ProductdetailPage extends State<ProductDetail> {
   final dbHelper = DatabaseHelper.instance;
   Product? item;
   bool isLoading = false;
+  bool isWishlisted = false;
   String message = '';
   String role = 'customer';
 
@@ -226,7 +227,7 @@ class ProductdetailPage extends State<ProductDetail> {
                 );
               },
               child: Text(
-                "Visit Shop",
+                item?.sellerName ?? "Visit Shop",
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.blue,

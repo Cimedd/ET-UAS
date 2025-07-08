@@ -79,9 +79,9 @@ class ProductAddPage extends State<ProductAdd>{
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    Product prod = Product(id: 0, sellerId:0 , name: _nameController.text, 
+                    Product prod = Product(id: 0, sellerId:0 , name: _nameController.text, sellerName: "",
                     description: _descController.text, price: int.parse(_priceController.text),
-                     stock:int.parse( _stockController.text), image: _imageController.text, category: []);
+                     stock:int.parse( _stockController.text), image: _imageController.text, category: [], isWishlisted: false);
                      addProducct(prod);
                   }
                 },
