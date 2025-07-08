@@ -1,6 +1,7 @@
 import 'package:belanja/Seller/categoryList.dart';
 import 'package:belanja/Seller/dashboard.dart';
 import 'package:belanja/Seller/productList.dart';
+import 'package:belanja/chat.dart';
 import 'package:flutter/material.dart';
 
 class SellerMain extends StatefulWidget{
@@ -20,12 +21,14 @@ final List<Widget> _screens = [
   Dashboard(),
   ProductList(),
   CategoryList(),
+  Chat()
 ];
 
 final List<String> _drawerTitles = [
   'Dashboard',
   'Product',
   'Category',
+  'Chat'
 ];
   @override
   Widget build(BuildContext context) {

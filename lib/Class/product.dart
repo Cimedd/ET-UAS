@@ -27,7 +27,7 @@ class Product {
     return Product(
       id: json['id'],
       sellerId: json['seller_id'],
-      sellerName: json['seller_name'],
+      sellerName: json['seller_name'] ?? "",
       name: json['name'],
       description: json['description'],
       price: json['price'],
@@ -36,7 +36,7 @@ class Product {
       category: (json['categories'] as List<dynamic>?)
           ?.map((e) => Category.fromJson(e))
           .toList(),
-      isWishlisted: json['wishlist'] ?? "False"
+      isWishlisted: json['wishlist'] ?? false
     );
   }
 }

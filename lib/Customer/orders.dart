@@ -1,3 +1,5 @@
+import 'package:belanja/Class/api.dart' as api;
+import 'package:belanja/Class/order.dart';
 import 'package:flutter/material.dart';
 
 class Order extends StatefulWidget {
@@ -8,14 +10,40 @@ class Order extends StatefulWidget {
 }
 
 class OrderPage extends State<Order> {
-  
+  List<Orders> orders = [];
+  bool isLoading = true;
+
+  void fetchData() async {
+    List<Orders> data = await api.getOrderHistory();
+    setState(() {
+      orders = data;
+      isLoading = false;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Padding(
+      body: orderItem(),
+    );
+  }
+
+  Widget orderItem(){
+     if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    } else if (orders.isEmpty) {
+      return Center(child: Text("Empty Product"));
+    } else {
+      return  Padding(
         padding: EdgeInsets.all(8),
         child: ListView.builder(
-          itemCount: 20,
+          itemCount: orders.length,
           itemBuilder: (context, index) {
             return Padding(
               padding: EdgeInsets.all(4),
@@ -23,19 +51,19 @@ class OrderPage extends State<Order> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "#ORD1234",
+                    "#${orders[index].id}",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 6),
-                  Text("123 Main Street, Surabaya"),
+                  Text(orders[index].address),
                   SizedBox(height: 4),
                   Text(
-                    "Date: 2025-06-10",
+                    "Date: ${orders[index].time}",
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                   SizedBox(height: 6),
                   Text(
-                    "Total: Rp 1.500.000",
+                    "Total: Rp ${orders[index].total}",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.teal,
@@ -49,7 +77,7 @@ class OrderPage extends State<Order> {
             );
           },
         ),
-      ),
-    );
+      );
+    }
   }
 }

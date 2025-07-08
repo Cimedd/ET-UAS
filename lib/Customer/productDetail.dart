@@ -1,5 +1,6 @@
 import 'package:belanja/Class/db.dart';
 import 'package:belanja/Class/product.dart';
+import 'package:belanja/Class/review.dart';
 import 'package:belanja/Customer/cart.dart';
 import 'package:belanja/Customer/shopDetail.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class ProductDetail extends StatefulWidget {
 class ProductdetailPage extends State<ProductDetail> {
   final dbHelper = DatabaseHelper.instance;
   Product? item;
+  List<Review> reviews = [];
   bool isLoading = false;
   bool isWishlisted = false;
   String message = '';
@@ -72,9 +74,7 @@ class ProductdetailPage extends State<ProductDetail> {
                   ElevatedButton(
                     onPressed: () {
                       if (_quantityController.text.isNotEmpty) {
-                        setState(() {});
-                        _reviewController.clear();
-                        Navigator.pop(context);
+                        addReview();
                       }
                     },
                     child: const Text("Submit"),
@@ -150,10 +150,43 @@ class ProductdetailPage extends State<ProductDetail> {
       item = prod;
       isLoading = false;
       role = prefRole;
+      isWishlisted = prod.isWishlisted;
     });
   }
 
-  void wishlist() async {}
+  
+  void fetchReview() async {
+    final rev = await api.getReview(widget.productId);
+    setState(() {
+      reviews = rev;
+    });
+  }
+  
+  void addReview() async {
+    final result = await api.addReview(_reviewController.text, _ratingController.text, widget.productId);
+    if(result == "success"){
+       ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Add successful!")));
+      fetchReview();
+    } 
+    else{
+       ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    } 
+  }
+
+  void wishlist() async {
+    final result = await api.wishlistItem(widget.productId);
+    if(result == "added"){
+      isWishlisted = true;
+    }
+    else{
+      isWishlisted = false;
+    }
+    setState(() {});
+  }
 
   void addToCart(quantity) async {
     Map<String, dynamic> addItem = {
@@ -175,6 +208,7 @@ class ProductdetailPage extends State<ProductDetail> {
   void initState() {
     super.initState();
     fetchData();
+    fetchReview();
   }
 
   @override
@@ -186,10 +220,10 @@ class ProductdetailPage extends State<ProductDetail> {
            if (role == "customer") 
            IconButton(
             icon: Icon(
-              Icons.favorite_border,
+              isWishlisted ? Icons.favorite : Icons.favorite_border,
             ), 
             onPressed: () {
-              wishlist();
+              ();
             },
           ),
         ],
@@ -294,17 +328,17 @@ class ProductdetailPage extends State<ProductDetail> {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               shrinkWrap: true,
               physics: NeverScrollableScrollPhysics(),
-              itemCount: 8,
+              itemCount: reviews.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: const CircleAvatar(child: Icon(Icons.person)),
                   title: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("name"),
+                      Text(reviews[index].sender),
                       Row(
                         children: [
-                          Text("review['rating']" ?? '4'),
+                          Text(reviews[index].rating.toString() ?? '4'),
                           const SizedBox(width: 4),
                           const Icon(Icons.star, color: Colors.amber, size: 16),
                         ],
@@ -314,10 +348,10 @@ class ProductdetailPage extends State<ProductDetail> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Lorem ipsum dolor"),
+                      Text(reviews[index].text),
                       const SizedBox(height: 4),
                       Text(
-                        "review['date']" ?? '2025-06-13',
+                        reviews[index].time ?? '2025-06-13',
                         style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
                     ],

@@ -3,7 +3,6 @@ import 'package:belanja/Customer/customerMain.dart';
 import 'package:flutter/material.dart';
 import 'package:belanja/Class/api.dart' as api;
 
-
 class Checkout extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -14,15 +13,22 @@ class Checkout extends StatefulWidget {
 class CheckoutPage extends State<Checkout> {
   List<Map<String, dynamic>> carts = [];
   final dbHelper = DatabaseHelper.instance;
+  final _addressController = TextEditingController();
 
   void addOrder() async {
-    final result = api.GetProductList();
-    await dbHelper.emptyCart();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => CustomerMain()),
-      (route) => false, 
-    );
+    final result = api.addOrder(calculateTotal(), _addressController.text);
+    if (result == "success") {
+      await dbHelper.emptyCart();
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => CustomerMain()),
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    }
   }
 
   void fetchData() async {
@@ -32,7 +38,7 @@ class CheckoutPage extends State<Checkout> {
     });
   }
 
-  int calculateTota() {
+  int calculateTotal() {
     int total = 0;
     for (var item in carts) {
       total +=
@@ -95,16 +101,15 @@ class CheckoutPage extends State<Checkout> {
                 },
               ),
             ),
-
             const SizedBox(height: 16),
             TextField(
+              controller: _addressController,
               decoration: InputDecoration(
                 labelText: "Delivery Address",
                 border: OutlineInputBorder(),
               ),
               maxLines: 1,
             ),
-
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -114,18 +119,23 @@ class CheckoutPage extends State<Checkout> {
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "Rp ${calculateTota()}",
+                  "Rp ${calculateTotal()}",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle order submit
+                  if (_addressController.text.isNotEmpty) {
+                    addOrder();
+                  } else {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text("Fill the address!")));
+                  }
                 },
                 child: Text("Continue"),
               ),
