@@ -10,7 +10,7 @@ class Review {
     return Review(id: json['id'], 
     text:json['text'] ??"",
     rating: json['rating'] ?? 0,
-    time: json['time'] ?? "",
-    sender: json['sender']??"");
+    time: json['created_at'] ?? "",
+    sender: json['name']??"");
   }
 }

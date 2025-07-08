@@ -73,7 +73,7 @@ class ProductdetailPage extends State<ProductDetail> {
                   const SizedBox(height: 6),
                   ElevatedButton(
                     onPressed: () {
-                      if (_quantityController.text.isNotEmpty) {
+                      if (_reviewController.text.isNotEmpty || _ratingController.text.isNotEmpty) {
                         addReview();
                       }
                     },
@@ -169,6 +169,8 @@ class ProductdetailPage extends State<ProductDetail> {
         context,
       ).showSnackBar(SnackBar(content: Text("Add successful!")));
       fetchReview();
+      _reviewController.text = "";
+      _ratingController.text = "";
     } 
     else{
        ScaffoldMessenger.of(
@@ -223,7 +225,7 @@ class ProductdetailPage extends State<ProductDetail> {
               isWishlisted ? Icons.favorite : Icons.favorite_border,
             ), 
             onPressed: () {
-              ();
+              wishlist();
             },
           ),
         ],

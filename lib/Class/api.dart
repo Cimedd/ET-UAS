@@ -356,7 +356,8 @@ Future<String> addOrder(total, address) async{
     if (json['result'] == 'success') {
       return "success";
     } else {
-      return "error";
+      throw Exception('Failed to read API ${json['message']}');
+      //return "error";
     }
   } else {
     throw Exception('Failed to read API');
@@ -383,8 +384,22 @@ Future<List<Orders>> getOrderHistory() async{
   }
 }
 
-Future<String> getOrderDetail() async{
-    return "";
+Future<OrderDetail> getOrderDetail(id) async{
+    final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/orderlist.php"),
+    body: {'id': id.toString()},
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return OrderDetail.fromJson(json['data']);
+    } else {
+      throw Exception('API result not success');
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
 }
 
 //chat

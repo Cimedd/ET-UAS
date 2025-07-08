@@ -16,7 +16,7 @@ class CheckoutPage extends State<Checkout> {
   final _addressController = TextEditingController();
 
   void addOrder() async {
-    final result = api.addOrder(calculateTotal(), _addressController.text);
+    final result = await api.addOrder(calculateTotal(), _addressController.text);
     if (result == "success") {
       await dbHelper.emptyCart();
       Navigator.pushAndRemoveUntil(
