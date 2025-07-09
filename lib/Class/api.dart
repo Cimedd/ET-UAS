@@ -93,8 +93,8 @@ Future<String> AddProduct(Product prod) async {
   }
 }
 
-Future<String> DeleteProduct(id) async{
-   final response = await http.post(
+Future<String> DeleteProduct(id) async {
+  final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productdelete.php"),
     body: {'id': id.toString()},
   );
@@ -160,7 +160,7 @@ Future<Product> GetProductDetail(id) async {
   final cid = await userPref.getId();
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productdetail.php"),
-    body: {'id': id.toString(), 'cid' : cid.toString()},
+    body: {'id': id.toString(), 'cid': cid.toString()},
   );
 
   if (response.statusCode == 200) {
@@ -176,8 +176,8 @@ Future<Product> GetProductDetail(id) async {
 }
 
 //review
-Future<List<Review>> getReview(id) async{
-    final response = await http.post(
+Future<List<Review>> getReview(id) async {
+  final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/reviewlist.php"),
     body: {'id': id.toString()},
   );
@@ -195,11 +195,16 @@ Future<List<Review>> getReview(id) async{
   }
 }
 
-Future<String> addReview(text,rating, pid) async {
+Future<String> addReview(text, rating, pid) async {
   final id = await userPref.getId();
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/reviewadd.php"),
-    body: {'cid': id.toString(),'pid' : pid.toString(), 'text' : text, 'rating' : rating.toString() },
+    body: {
+      'cid': id.toString(),
+      'pid': pid.toString(),
+      'text': text,
+      'rating': rating.toString(),
+    },
   );
 
   if (response.statusCode == 200) {
@@ -310,11 +315,11 @@ Future<List<Product>> GetWishlist() async {
   }
 }
 
-Future<String> wishlistItem(pid) async{
+Future<String> wishlistItem(pid) async {
   final id = await userPref.getId();
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/wishlistadd.php"),
-    body: {'cid': id.toString(), 'pid':pid.toString()},
+    body: {'cid': id.toString(), 'pid': pid.toString()},
   );
 
   if (response.statusCode == 200) {
@@ -330,27 +335,28 @@ Future<String> wishlistItem(pid) async{
 }
 
 //order
-Future<String> addOrder(total, address) async{
+Future<String> addOrder(total, address) async {
   final id = await userPref.getId();
 
   final dbHelper = DatabaseHelper.instance;
-   
+
   final cartItems = await dbHelper.viewCart() ?? [];
 
-  List<Map<String, dynamic>> orderList = cartItems.map((item) {
-    return {
-      "quantity": item["quantity"],
-      "product_id": item["product_id"],
-    };
-  }).toList();
+  List<Map<String, dynamic>> orderList =
+      cartItems.map((item) {
+        return {"quantity": item["quantity"], "product_id": item["product_id"]};
+      }).toList();
 
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/orderadd.php"),
-    body: {'id': id.toString(),'total': total.toString(),
+    body: {
+      'id': id.toString(),
+      'total': total.toString(),
       'address': address,
-      'orders': jsonEncode(orderList),},
+      'orders': jsonEncode(orderList),
+    },
   );
-  
+
   if (response.statusCode == 200) {
     Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
@@ -364,7 +370,7 @@ Future<String> addOrder(total, address) async{
   }
 }
 
-Future<List<Orders>> getOrderHistory() async{
+Future<List<Orders>> getOrderHistory() async {
   final id = await userPref.getId();
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/orderlist.php"),
@@ -384,8 +390,8 @@ Future<List<Orders>> getOrderHistory() async{
   }
 }
 
-Future<OrderDetail> getOrderDetail(id) async{
-    final response = await http.post(
+Future<OrderDetail> getOrderDetail(id) async {
+  final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/orderlist.php"),
     body: {'id': id.toString()},
   );
@@ -483,3 +489,22 @@ Future<int> startChat(int sellerId) async {
   }
 }
 
+//report
+Future<List<dynamic>> getReport() async {
+  final userId = await userPref.getId();
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/report.php"),
+    body: {'user_id': userId.toString()},
+  );
+
+  if (response.statusCode == 200) {
+    Map<String, dynamic> json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return json['data'];
+    } else {
+      return [];
+    }
+  } else {
+    throw Exception('Failed to load reporrt list');
+  }
+}
