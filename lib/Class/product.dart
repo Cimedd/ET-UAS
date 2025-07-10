@@ -26,13 +26,13 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'],
-      sellerId: json['seller_id'],
+      sellerId: json['seller_id'] ?? 0,
       sellerName: json['seller_name'] ?? "",
-      name: json['name'],
-      description: json['description'],
-      price: json['price'],
-      stock: json['stock'],
-      image: json['image'],
+      name: json['name'] ?? "",
+      description: json['description'] ?? "",
+      price: json['price'] ?? 0,
+      stock: json['stock'] ?? 0,
+      image: json['image'] ?? "",
       category: (json['categories'] as List<dynamic>?)
           ?.map((e) => Category.fromJson(e))
           .toList(),

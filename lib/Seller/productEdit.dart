@@ -16,7 +16,9 @@ class ProductEdit extends StatefulWidget {
 
 class ProductEditPage extends State<ProductEdit> {
   Product? product;
+  List<Category> categories = [];
   bool isLoading = true;
+  int? selectedId;
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descController = TextEditingController();
@@ -35,6 +37,93 @@ class ProductEditPage extends State<ProductEdit> {
       _stockController.text = product?.stock.toString() ?? '';
       _imageController.text = product?.image ?? "";
     });
+  }
+
+  void fetchCategory() async {
+    final data = await api.GetCategory();
+    setState(() {
+      categories = data;
+    });
+  }
+
+  void addProductCat(cid) async {
+    final result = await api.AddProductCategory(cid, product?.id);
+    if (result == "success") {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Add successful!")));
+      fetchData();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    }
+  }
+
+  void deleteProductCat(cid) async {
+    final result = await api.DeleteProductCategories(cid, product?.id);
+    if (result == "success") {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Delete successful!")));
+      fetchData();
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Failed!")));
+    }
+  }
+
+  void showCategoryDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        int? tempSelected = 0; 
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Select Category'),
+              content: Container(
+                width: double.maxFinite,
+                constraints: BoxConstraints(maxHeight: 300),
+                child: ListView(
+                  shrinkWrap: true,
+                  children:
+                      categories.map((category) {
+                        return RadioListTile<int>(
+                          title: Text(category.name),
+                          value: category.id,
+                          groupValue: tempSelected,
+                          onChanged: (int? value) {
+                            setState(() {
+                              tempSelected = value;
+                            });
+                          },
+                        );
+                      }).toList(),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (tempSelected != null) {
+                      selectedId = tempSelected; 
+                      addProductCat(selectedId!); 
+                    }
+                    Navigator.pop(context);
+                  },
+                  child: Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   void Save(Product prod) async {
@@ -62,13 +151,14 @@ class ProductEditPage extends State<ProductEdit> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Failed!")));
-    } 
+    }
   }
 
   @override
   void initState() {
     super.initState();
     fetchData();
+    fetchCategory();
   }
 
   @override
@@ -76,9 +166,14 @@ class ProductEditPage extends State<ProductEdit> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Edit Product"),
-        actions: [IconButton(icon: const Icon(Icons.delete, color: Colors.red,), onPressed: () {
-          Delete(product?.id);
-        })],
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              Delete(product?.id);
+            },
+          ),
+        ],
       ),
       body: EditForm(),
     );
@@ -136,6 +231,45 @@ class ProductEditPage extends State<ProductEdit> {
                         value == null || value.isEmpty
                             ? "Enter image URL"
                             : null,
+              ),
+              const SizedBox(height: 20),
+              Text("Categories"),
+              Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  ...(product?.category
+                          ?.where(
+                            (cat) => cat.name != null && cat.name!.isNotEmpty,
+                          )
+                          .map(
+                            (category) => Chip(
+                              label: Text(category.name),
+                              onDeleted: () {
+                                setState(() {
+                                  deleteProductCat(category.id);
+                                });
+                              },
+                            ),
+                          )
+                          .toList() ??
+                      []),
+
+                  // Add Category Chip at the end
+                  ActionChip(
+                    label: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.add, size: 16),
+                        SizedBox(width: 4),
+                        Text("Add Category"),
+                      ],
+                    ),
+                    onPressed: () {
+                      showCategoryDialog();
+                    },
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
               ElevatedButton(

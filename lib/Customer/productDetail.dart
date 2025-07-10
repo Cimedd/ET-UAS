@@ -3,6 +3,7 @@ import 'package:belanja/Class/product.dart';
 import 'package:belanja/Class/review.dart';
 import 'package:belanja/Customer/cart.dart';
 import 'package:belanja/Customer/shopDetail.dart';
+import 'package:belanja/chatList.dart';
 import 'package:flutter/material.dart';
 import 'package:belanja/Class/api.dart' as api;
 import 'package:belanja/Class/userPref.dart' as userPref;
@@ -42,7 +43,6 @@ class ProductdetailPage extends State<ProductDetail> {
                     context,
                   ).viewInsets.bottom, // ⬅️ Handles keyboard
             ),
-
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -226,6 +226,20 @@ class ProductdetailPage extends State<ProductDetail> {
             ), 
             onPressed: () {
               wishlist();
+            },
+          ),
+           if (role == "customer") 
+             IconButton(
+            icon: Icon(
+              Icons.message,
+            ), 
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChatList(id: item?.sellerId ?? 0, name: item?.sellerName?? "",),
+                ),
+              );
             },
           ),
         ],

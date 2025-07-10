@@ -38,11 +38,9 @@ class OrderDetail {
   ); 
 }
 
-
 class OrderItem {
   int quantity;
   Product product;
-
   OrderItem({required this.quantity, required this.product});
 
   factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(

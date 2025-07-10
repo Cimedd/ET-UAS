@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:belanja/Class/chat.dart';
 import 'package:belanja/Class/db.dart';
 import 'package:belanja/Class/order.dart';
 import 'package:belanja/Class/product.dart';
@@ -52,6 +53,28 @@ Future<String> Register(name, email, password, role) async {
 Future<List<Product>> GetProductList() async {
   final response = await http.get(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productlist.php"),
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      final List<dynamic> jsonList = json['data'];
+      return jsonList.map((e) => Product.fromJson(e)).toList();
+    } else {
+      throw Exception('API result not success');
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}
+
+Future<List<Product>> GetProductListFiltered(filter,search) async {
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/searchproduct.php"),
+    body: {
+      'search': search,
+      'filter': filter,
+    },
   );
 
   if (response.statusCode == 200) {
@@ -136,11 +159,90 @@ Future<String> EditProduct(Product prod) async {
   }
 }
 
-Future<List<Product>> GetProductAdmin() async {
-  final id = await userPref.getId();
+Future<String> AddProductCategory(cid,pid) async {
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productcategoriesadd.php"),
+    body: {
+      'cid': cid.toString(),
+      'pid': pid.toString(),
+    },
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return "success";
+    } else {
+      throw Exception('API result not success');
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}
+
+Future<String> DeleteProductCategories(cid,pid) async {
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productcategoriesdelete.php"),
+    body: {
+      'cid': cid.toString(),
+      'pid': pid.toString(),
+    },
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      return "success";
+    } else {
+      return "error";
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}
+
+
+Future<List<Product>> GetProductAdmin(id) async {
+  int sellerId;
+  if(id != 0){
+    sellerId = id;
+  }
+  else{
+    sellerId = await userPref.getId();
+  }
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/productadminlist.php"),
-    body: {'id': id.toString()},
+    body: {'id': sellerId.toString()},
+  );
+
+  if (response.statusCode == 200) {
+    Map json = jsonDecode(response.body);
+    if (json['result'] == 'success') {
+      final List<dynamic> jsonList = json['data'];
+      return jsonList.map((e) => Product.fromJson(e)).toList();
+    } else {
+      throw Exception('API result not success');
+    }
+  } else {
+    throw Exception('Failed to read API');
+  }
+}
+
+Future<List<Product>> GetProducAdmintListFiltered(filter,search, id) async {
+  int sellerId;
+  if(id != 0){
+    sellerId = id;
+  }
+  else{
+    sellerId = await userPref.getId();
+  }
+  final response = await http.post(
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/searchproductadmin.php"),
+    body: {
+      'search': search,
+      'filter': filter,
+      'id' : sellerId.toString()
+    },
   );
 
   if (response.statusCode == 200) {
@@ -392,7 +494,7 @@ Future<List<Orders>> getOrderHistory() async {
 
 Future<OrderDetail> getOrderDetail(id) async {
   final response = await http.post(
-    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/orderlist.php"),
+    Uri.parse("https://ubaya.xyz/flutter/160422007/uas/orderdetail.php"),
     body: {'id': id.toString()},
   );
 
@@ -409,7 +511,7 @@ Future<OrderDetail> getOrderDetail(id) async {
 }
 
 //chat
-Future<List<dynamic>> fetchChatList() async {
+Future<List<Chats>> fetchChatList() async {
   final userId = await userPref.getId();
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/chatlist.php"),
@@ -417,10 +519,10 @@ Future<List<dynamic>> fetchChatList() async {
   );
 
   if (response.statusCode == 200) {
-    Map<String, dynamic> json = jsonDecode(response.body);
+    Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
-      // Kembalikan list data percakapan
-      return json['data'];
+      final List<dynamic> jsonList = json['data'];
+      return jsonList.map((e) => Chats.fromJson(e)).toList();
     } else {
       // Jika gagal atau tidak ada data, kembalikan list kosong
       return [];
@@ -430,16 +532,17 @@ Future<List<dynamic>> fetchChatList() async {
   }
 }
 
-Future<List<dynamic>> fetchChatMessages(int chatId) async {
+Future<List<ChatMessage>> fetchChatMessages(int chatId) async {
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/chatmessages.php"),
     body: {'chat_id': chatId.toString()},
   );
 
   if (response.statusCode == 200) {
-    Map<String, dynamic> json = jsonDecode(response.body);
+    Map json = jsonDecode(response.body);
     if (json['result'] == 'success') {
-      return json['data'];
+      final List<dynamic> jsonList = json['data'];
+      return jsonList.map((e) => ChatMessage.fromJson(e)).toList();
     } else {
       return [];
     }
@@ -468,12 +571,21 @@ Future<String> sendChat(int chatId, String text) async {
 }
 
 Future<int> startChat(int sellerId) async {
-  final customerId = await userPref.getId();
+  int customerId = await userPref.getId();
+  int seller_Id = sellerId;
+  final role = await userPref.checkUser();
+
+
+  if (role == "seller") {
+    seller_Id = customerId;
+    customerId = sellerId;
+  } 
+
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/startchat.php"),
     body: {
       'customer_id': customerId.toString(),
-      'seller_id': sellerId.toString(),
+      'seller_id': seller_Id.toString(),
     },
   );
 
@@ -490,7 +602,7 @@ Future<int> startChat(int sellerId) async {
 }
 
 //report
-Future<List<dynamic>> getReport() async {
+Future<Map<String, dynamic>> getReport() async {
   final userId = await userPref.getId();
   final response = await http.post(
     Uri.parse("https://ubaya.xyz/flutter/160422007/uas/report.php"),
@@ -502,7 +614,7 @@ Future<List<dynamic>> getReport() async {
     if (json['result'] == 'success') {
       return json['data'];
     } else {
-      return [];
+      return {};
     }
   } else {
     throw Exception('Failed to load reporrt list');
