@@ -32,6 +32,13 @@ class Seller extends State<SellerMain> {
     'Chat',
   ];
 
+  final List<IconData> _icons = [
+    Icons.home,
+    Icons.shopping_cart,
+    Icons.category,
+    Icons.chat,
+  ];
+
   void Logout() async {
     await userPref.Logout();
     Navigator.pushAndRemoveUntil(
@@ -60,7 +67,7 @@ class Seller extends State<SellerMain> {
           itemCount: _drawerTitles.length,
           itemBuilder: (context, index) {
             return ListTile(
-              leading: Icon(Icons.arrow_right),
+              leading: Icon(_icons[index]),
               title: Text(_drawerTitles[index]),
               selected: index == _currentIndex,
               onTap: () {
